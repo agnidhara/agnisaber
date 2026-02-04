@@ -1,14 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>(TEST)AGNISABER</title>
+  <title>AGNISABER Game</title>
 </head>
 <body>
-   <P><h1>hey why are you here.</h1></P><hr >
-   <h1>wait if you really are here lets play a game.</h1>
-   <button onclick="alert('Game coming soon 😄')">
-  Start Game
-</button> 
-</body>
 
+<h1>Guess the Number 🎯</h1>
+<p>I am thinking of a number between <b>1 and 100</b>.</p>
+
+<input type="number" id="guess" placeholder="Enter your guess">
+<button onclick="checkGuess()">Guess</button>
+
+<p id="result"></p>
+
+<script>
+  let secretNumber = Math.floor(Math.random() * 100) + 1;
+
+  function checkGuess() {
+    let userGuess = document.getElementById("guess").value;
+    let result = document.getElementById("result");
+
+    if (userGuess == "") {
+      result.innerText = "❗ Please enter a number";
+    } else if (userGuess < secretNumber) {
+      result.innerText = "📉 Too low!";
+    } else if (userGuess > secretNumber) {
+      result.innerText = "📈 Too high!";
+    } else {
+      result.innerText = "🎉 Correct! You guessed the number!";
+    }
+  }
+</script>
+
+</body>
 </html>

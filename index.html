@@ -1,42 +1,172 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AGNISABER Game</title>
+  <title>AGNISABER Auth Game</title>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.7);
+      padding: 30px;
+      border-radius: 15px;
+      width: 300px;
+      text-align: center;
+    }
+
+    input, button {
+      width: 90%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    button {
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+    }
+
+    button.secondary {
+      background: #2196F3;
+    }
+
+    button.logout {
+      background: #f44336;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    p {
+      margin-top: 10px;
+      cursor: pointer;
+      color: #ddd;
+    }
+  </style>
 </head>
+
 <body>
 
-<h1>Guess the Number 🎯</h1>
-<p>I am thinking of a number between <b>1 and 100</b>.</p>
+<!-- LOGIN -->
+<div class="card" id="loginBox">
+  <h2>🔐 Login</h2>
+  <input type="text" id="loginUser" placeholder="Username">
+  <input type="password" id="loginPass" placeholder="Password">
+  <button onclick="login()">Login</button>
+  <p onclick="showSignup()">New user? Sign up</p>
+  <p id="loginMsg"></p>
+</div>
 
-<input type="number" id="guess" placeholder="Enter your guess">
-<button onclick="checkGuess()">Guess</button>
-<button onclick="restartGame()">Restart 🔄</button>
+<!-- SIGN UP -->
+<div class="card hidden" id="signupBox">
+  <h2>🆕 Sign Up</h2>
+  <input type="text" id="signupUser" placeholder="Create username">
+  <input type="password" id="signupPass" placeholder="Create password">
+  <button class="secondary" onclick="signup()">Sign Up</button>
+  <p onclick="showLogin()">Already have an account?</p>
+  <p id="signupMsg"></p>
+</div>
 
-<p id="result"></p>
+<!-- GAME -->
+<div class="card hidden" id="gameBox">
+  <h2 id="welcome"></h2>
+  <p>Guess a number (1–100)</p>
+
+  <input type="number" id="guess" placeholder="Your guess">
+  <button onclick="checkGuess()">Guess</button>
+  <button onclick="restartGame()">Restart 🔄</button>
+  <button class="logout" onclick="logout()">Logout 🚪</button>
+
+  <p id="result"></p>
+</div>
 
 <script>
   let secretNumber = Math.floor(Math.random() * 100) + 1;
 
-  function checkGuess() {
-    let userGuess = document.getElementById("guess").value;
-    let result = document.getElementById("result");
+  function signup() {
+    let user = signupUser.value.trim();
+    let pass = signupPass.value;
 
-    if (userGuess === "") {
-      result.innerText = "❗ Please enter a number";
-    } else if (userGuess < secretNumber) {
-      result.innerText = "📉 Too low!";
-    } else if (userGuess > secretNumber) {
-      result.innerText = "📈 Too high!";
-    } else {
-      result.innerText = "🎉 Correct! You guessed the number!";
+    if (!user || !pass) {
+      signupMsg.innerText = "❗ Fill all fields";
+      return;
     }
+
+    if (localStorage.getItem("user_" + user) !== null) {
+      signupMsg.innerText = "⚠️ Username already used. Try another";
+      return;
+    }
+
+    localStorage.setItem("user_" + user, pass);
+    signupMsg.innerText = "✅ Account created! Login now";
+  }
+
+  function login() {
+    let user = loginUser.value;
+    let pass = loginPass.value;
+    let savedPass = localStorage.getItem("user_" + user);
+
+    if (!savedPass || savedPass !== pass) {
+      loginMsg.innerText = "❌ Wrong username or password";
+      return;
+    }
+
+    localStorage.setItem("loggedInUser", user);
+    showGame();
+  }
+
+  function showGame() {
+    let user = localStorage.getItem("loggedInUser");
+    if (!user) return;
+
+    loginBox.classList.add("hidden");
+    signupBox.classList.add("hidden");
+    gameBox.classList.remove("hidden");
+    welcome.innerText = "Welcome, " + user + " 👋";
+  }
+
+  function logout() {
+    localStorage.removeItem("loggedInUser");
+    location.reload();
   }
 
   function restartGame() {
     secretNumber = Math.floor(Math.random() * 100) + 1;
-    document.getElementById("guess").value = "";
-    document.getElementById("result").innerText = "🔄 Game restarted! Guess again.";
+    guess.value = "";
+    result.innerText = "🔄 New number generated!";
   }
+
+  function checkGuess() {
+    let g = guess.value;
+    if (g < secretNumber) result.innerText = "📉 Too low!";
+    else if (g > secretNumber) result.innerText = "📈 Too high!";
+    else result.innerText = "🎉 You guessed it!";
+  }
+
+  function showSignup() {
+    loginBox.classList.add("hidden");
+    signupBox.classList.remove("hidden");
+  }
+
+  function showLogin() {
+    signupBox.classList.add("hidden");
+    loginBox.classList.remove("hidden");
+  }
+
+  showGame(); // auto-login if already logged in
 </script>
 
 </body>

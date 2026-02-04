@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard</title>
+<style>
+body{
+  margin:0;
+  height:100vh;
+  background:linear-gradient(135deg,#1f4037,#99f2c8);
+  font-family:Arial;
+}
+.center{
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.card{
+  width:70%;
+  max-width:700px;
+  background:#000c;
+  padding:40px;
+  border-radius:30px;
+  color:white;
+  text-align:center;
+}
+img{
+  width:140px;
+  height:140px;
+  border-radius:50%;
+  border:4px solid #9acd32;
+}
+button{
+  width:100%;
+  padding:15px;
+  margin-top:15px;
+  border:none;
+  border-radius:15px;
+  font-size:18px;
+}
+.play{background:#9acd32;}
+.logout{background:#ff7b2c;color:white;}
+</style>
+</head>
+
+<body>
+<div class="center">
+<div class="card">
+  <h1 id="welcome"></h1>
+
+  <img id="pic"><br><br>
+  <input type="file" onchange="loadPic(event)">
+
+  <button class="play" onclick="play()">▶ Play Guess the Number</button>
+  <p>✨ More coming soon...</p>
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
+</div>
+
+<script>
+welcome.innerText="Welcome, "+(localStorage.currentUser||"Player");
+
+function loadPic(e){
+  pic.src=URL.createObjectURL(e.target.files[0]);
+}
+
+function play(){
+  location.href="game.html";
+}
+
+function logout(){
+  localStorage.removeItem("currentUser");
+  location.href="login.html";
+}
+</script>
+</body>
+</html>

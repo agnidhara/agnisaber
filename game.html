@@ -1,56 +1,147 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Guess Game</title>
+<meta charset="UTF-8">
+<title>Guess the Number</title>
+
 <style>
-body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#222;
-  color:white;
-  font-family:Arial;
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #141E30, #243B55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  color: white;
 }
-.box{
-  background:#000c;
-  padding:30px;
-  border-radius:20px;
-  text-align:center;
+
+.game-box {
+  background: rgba(0,0,0,0.75);
+  padding: 30px;
+  border-radius: 20px;
+  width: 340px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
 }
-input,button{
-  padding:10px;
-  margin-top:10px;
-  border-radius:10px;
-  border:none;
+
+h2 {
+  margin-bottom: 10px;
 }
-button{background:#9acd32;}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  background: #9acd32;
+  font-weight: bold;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+#msg {
+  margin-top: 15px;
+  min-height: 24px;
+}
+
+.back {
+  background: #ff7b2c;
+  color: white;
+}
 </style>
 </head>
 
 <body>
-<div class="box">
-  <h2>Guess the Number (1–100)</h2>
-  <input id="g" placeholder="Enter number">
+
+<div class="game-box">
+  <h2>🎯 Guess the Number</h2>
+  <p>(Between 1 and 100)</p>
+
+  <input id="g" type="number" placeholder="Enter your guess">
+
   <button onclick="check()">Guess</button>
+
   <p id="msg"></p>
-  <button onclick="back()">⬅ Back</button>
+
+  <button class="back" onclick="back()">⬅ Back to Dashboard</button>
 </div>
 
 <script>
-let num=Math.floor(Math.random()*100)+1;
+let number = Math.floor(Math.random() * 100) + 1;
+let tries = 0;
 
-function check(){
-  let v=Number(g.value);
-  if(v>num) msg.innerText="Too high!";
-  else if(v<num) msg.innerText="Too low!";
-  else msg.innerText="🎉 Correct!";
+function check() {
+  let guess = Number(document.getElementById("g").value);
+  let msg = document.getElementById("msg");
+
+  if (!guess || guess < 1 || guess > 100) {
+    msg.innerText = "Enter a number between 1 and 100!";
+    return;
+  }
+
+  tries++;
+
+  if (guess > number) {
+    msg.innerText = "⬆ Too high!";
+  } 
+  else if (guess < number) {
+    msg.innerText = "⬇ Too low!";
+  } 
+  else {
+    let balance = Number(localStorage.getItem("balance")) || 100;
+    let reward = 0;
+
+    if (tries === 1) {
+      reward = 500;
+      msg.innerText = "🏆 PERFECT! 1 try! +500 coins";
+    } 
+    else if (tries <= 3) {
+      reward = 250;
+      msg.innerText = "🥇 Amazing! " + tries + " tries! +250 coins";
+    } 
+    else if (tries <= 5) {
+      reward = 100;
+      msg.innerText = "🥈 Good job! " + tries + " tries! +100 coins";
+    } 
+    else {
+      reward = 50;
+      msg.innerText = "🙂 Correct! " + tries + " tries! +50 coins";
+    }
+
+    balance += reward;
+    localStorage.setItem("balance", balance);
+
+    setTimeout(() => {
+      alert(
+        "🎉 You won!\n" +
+        "Tries: " + tries + "\n" +
+        "Coins earned: " + reward + "\n" +
+        "Total balance: " + balance
+      );
+      window.location.href = "dashboard.html";
+    }, 900);
+  }
 }
 
-function back(){
-  location.href="dashboard.html";
+function back() {
+  window.location.href = "dashboard.html";
 }
 </script>
+
 </body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>AGNISABER Auth Game</title>
+  <title>AGNISABER Dashboard</title>
 
   <style>
     body {
@@ -16,10 +16,10 @@
     }
 
     .card {
-      background: rgba(0,0,0,0.7);
-      padding: 30px;
+      background: rgba(0,0,0,0.75);
+      padding: 25px;
       border-radius: 15px;
-      width: 300px;
+      width: 320px;
       text-align: center;
     }
 
@@ -38,23 +38,22 @@
       color: white;
     }
 
-    button.secondary {
-      background: #2196F3;
-    }
+    button.blue { background: #2196F3; }
+    button.red { background: #f44336; }
+    button.gray { background: #777; }
 
-    button.logout {
-      background: #f44336;
-    }
+    .hidden { display: none; }
 
-    .hidden {
-      display: none;
-    }
-
-    p {
+    img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #4CAF50;
       margin-top: 10px;
-      cursor: pointer;
-      color: #ddd;
     }
+
+    p { color: #ccc; margin-top: 12px; }
   </style>
 </head>
 
@@ -63,8 +62,8 @@
 <!-- LOGIN -->
 <div class="card" id="loginBox">
   <h2>🔐 Login</h2>
-  <input type="text" id="loginUser" placeholder="Username">
-  <input type="password" id="loginPass" placeholder="Password">
+  <input id="loginUser" placeholder="Username">
+  <input id="loginPass" type="password" placeholder="Password">
   <button onclick="login()">Login</button>
   <p onclick="showSignup()">New user? Sign up</p>
   <p id="loginMsg"></p>
@@ -73,22 +72,34 @@
 <!-- SIGN UP -->
 <div class="card hidden" id="signupBox">
   <h2>🆕 Sign Up</h2>
-  <input type="text" id="signupUser" placeholder="Create username">
-  <input type="password" id="signupPass" placeholder="Create password">
-  <button class="secondary" onclick="signup()">Sign Up</button>
+  <input id="signupUser" placeholder="Create username">
+  <input id="signupPass" type="password" placeholder="Create password">
+  <button class="blue" onclick="signup()">Sign Up</button>
   <p onclick="showLogin()">Already have an account?</p>
   <p id="signupMsg"></p>
 </div>
 
+<!-- DASHBOARD -->
+<div class="card hidden" id="dashboardBox">
+  <h2 id="dashWelcome"></h2>
+
+  <img id="profilePic" src="" alt="Profile Picture">
+  <input type="file" accept="image/*" onchange="uploadPic(event)">
+
+  <button onclick="openGame()">▶️ Play Guess the Number</button>
+  <p>✨ More coming soon…</p>
+  <button class="red" onclick="logout()">Logout 🚪</button>
+</div>
+
 <!-- GAME -->
 <div class="card hidden" id="gameBox">
-  <h2 id="welcome"></h2>
-  <p>Guess a number (1–100)</p>
+  <h2>🎯 Guess the Number</h2>
+  <p>Between 1 and 100</p>
 
   <input type="number" id="guess" placeholder="Your guess">
   <button onclick="checkGuess()">Guess</button>
-  <button onclick="restartGame()">Restart 🔄</button>
-  <button class="logout" onclick="logout()">Logout 🚪</button>
+  <button class="gray" onclick="restartGame()">Restart 🔄</button>
+  <button class="blue" onclick="backToDashboard()">⬅ Back</button>
 
   <p id="result"></p>
 </div>
@@ -97,45 +108,68 @@
   let secretNumber = Math.floor(Math.random() * 100) + 1;
 
   function signup() {
-    let user = signupUser.value.trim();
-    let pass = signupPass.value;
-
-    if (!user || !pass) {
+    let u = signupUser.value.trim();
+    let p = signupPass.value;
+    if (!u || !p) {
       signupMsg.innerText = "❗ Fill all fields";
       return;
     }
-
-    if (localStorage.getItem("user_" + user) !== null) {
-      signupMsg.innerText = "⚠️ Username already used. Try another";
+    if (localStorage.getItem("user_" + u)) {
+      signupMsg.innerText = "⚠️ Username already used";
       return;
     }
-
-    localStorage.setItem("user_" + user, pass);
+    localStorage.setItem("user_" + u, p);
     signupMsg.innerText = "✅ Account created! Login now";
   }
 
   function login() {
-    let user = loginUser.value;
-    let pass = loginPass.value;
-    let savedPass = localStorage.getItem("user_" + user);
+    let u = loginUser.value;
+    let p = loginPass.value;
+    let saved = localStorage.getItem("user_" + u);
 
-    if (!savedPass || savedPass !== pass) {
+    if (!saved || saved !== p) {
       loginMsg.innerText = "❌ Wrong username or password";
       return;
     }
-
-    localStorage.setItem("loggedInUser", user);
-    showGame();
+    localStorage.setItem("loggedInUser", u);
+    showDashboard();
   }
 
-  function showGame() {
-    let user = localStorage.getItem("loggedInUser");
-    if (!user) return;
+  function showDashboard() {
+    let u = localStorage.getItem("loggedInUser");
+    if (!u) return;
 
     loginBox.classList.add("hidden");
     signupBox.classList.add("hidden");
+    dashboardBox.classList.remove("hidden");
+
+    dashWelcome.innerText = "Welcome, " + u + " 👋";
+
+    let pic = localStorage.getItem("pic_" + u);
+    profilePic.src = pic ? pic : "https://via.placeholder.com/100";
+  }
+
+  function uploadPic(event) {
+    let file = event.target.files[0];
+    if (!file) return;
+
+    let reader = new FileReader();
+    reader.onload = function() {
+      let u = localStorage.getItem("loggedInUser");
+      localStorage.setItem("pic_" + u, reader.result);
+      profilePic.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function openGame() {
+    dashboardBox.classList.add("hidden");
     gameBox.classList.remove("hidden");
-    welcome.innerText = "Welcome, " + user + " 👋";
+  }
+
+  function backToDashboard() {
+    gameBox.classList.add("hidden");
+    dashboardBox.classList.remove("hidden");
   }
 
   function logout() {
@@ -153,22 +187,11 @@
     let g = guess.value;
     if (g < secretNumber) result.innerText = "📉 Too low!";
     else if (g > secretNumber) result.innerText = "📈 Too high!";
-    else result.innerText = "🎉 You guessed it!";
+    else result.innerText = "🎉 You guessed it";
   }
 
-  function showSignup() {
-    loginBox.classList.add("hidden");
-    signupBox.classList.remove("hidden");
-  }
-
-  function showLogin() {
-    signupBox.classList.add("hidden");
-    loginBox.classList.remove("hidden");
-  }
-
-  showGame(); // auto-login if already logged in
+  showDashboard(); // auto login
 </script>
 
 </body>
 </html>
-

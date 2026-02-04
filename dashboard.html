@@ -1,77 +1,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Dashboard</title>
-<style>
-body{
-  margin:0;
-  height:100vh;
-  background:linear-gradient(135deg,#1f4037,#99f2c8);
-  font-family:Arial;
-}
-.center{
-  height:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-.card{
-  width:70%;
-  max-width:700px;
-  background:#000c;
-  padding:40px;
-  border-radius:30px;
-  color:white;
-  text-align:center;
-}
-img{
-  width:140px;
-  height:140px;
-  border-radius:50%;
-  border:4px solid #9acd32;
-}
-button{
-  width:100%;
-  padding:15px;
-  margin-top:15px;
-  border:none;
-  border-radius:15px;
-  font-size:18px;
-}
-.play{background:#9acd32;}
-.logout{background:#ff7b2c;color:white;}
-</style>
+  <title>Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(120deg, #1f4037, #99f2c8);
+      font-family: Arial;
+    }
+
+    .card {
+      width: 420px;
+      padding: 25px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      border-radius: 20px;
+      text-align: center;
+    }
+
+    img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #4CAF50;
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .play { background: #4CAF50; color: white; }
+    .logout { background: #ff5722; color: white; }
+  </style>
 </head>
-
 <body>
-<div class="center">
+
 <div class="card">
-  <h1 id="welcome"></h1>
+  <h2>Welcome, Player 👋</h2>
 
-  <img id="pic"><br><br>
-  <input type="file" onchange="loadPic(event)">
+  <img id="profilePic" src="" alt="Profile Picture">
 
-  <button class="play" onclick="play()">▶ Play Guess the Number</button>
+  <input type="file" accept="image/*" onchange="savePic(event)">
+
+  <button class="play" onclick="goGame()">▶ Play Guess the Number</button>
   <p>✨ More coming soon...</p>
   <button class="logout" onclick="logout()">Logout</button>
 </div>
-</div>
 
 <script>
-welcome.innerText="Welcome, "+(localStorage.currentUser||"Player");
+  const img = document.getElementById("profilePic");
 
-function loadPic(e){
-  pic.src=URL.createObjectURL(e.target.files[0]);
-}
+  // Load saved image
+  const savedPic = localStorage.getItem("profilePic");
+  if (savedPic) {
+    img.src = savedPic;
+  } else {
+    img.src = "https://via.placeholder.com/120";
+  }
 
-function play(){
-  location.href="game.html";
-}
+  function savePic(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
 
-function logout(){
-  localStorage.removeItem("currentUser");
-  location.href="login.html";
-}
+    reader.onload = function () {
+      localStorage.setItem("profilePic", reader.result);
+      img.src = reader.result;
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  function goGame() {
+    window.location.href = "game.html";
+  }
+
+  function logout() {
+    window.location.href = "index.html";
+  }
 </script>
+
 </body>
 </html>

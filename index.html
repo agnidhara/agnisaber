@@ -10,6 +10,7 @@
 
 <input type="number" id="guess" placeholder="Enter your guess">
 <button onclick="checkGuess()">Guess</button>
+<button onclick="restartGame()">Restart 🔄</button>
 
 <p id="result"></p>
 
@@ -20,7 +21,7 @@
     let userGuess = document.getElementById("guess").value;
     let result = document.getElementById("result");
 
-    if (userGuess == "") {
+    if (userGuess === "") {
       result.innerText = "❗ Please enter a number";
     } else if (userGuess < secretNumber) {
       result.innerText = "📉 Too low!";
@@ -29,6 +30,12 @@
     } else {
       result.innerText = "🎉 Correct! You guessed the number!";
     }
+  }
+
+  function restartGame() {
+    secretNumber = Math.floor(Math.random() * 100) + 1;
+    document.getElementById("guess").value = "";
+    document.getElementById("result").innerText = "🔄 Game restarted! Guess again.";
   }
 </script>
 

@@ -1,196 +1,134 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AGNISABER Dashboard</title>
+<meta charset="UTF-8">
+<title>Dashboard</title>
 
-  <style>
+<style>
     body {
-      margin: 0;
-      height: 100vh;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
-      color: white;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #1f4037, #99f2c8);
+        font-family: Arial, sans-serif;
     }
 
-    .card {
-      background: rgba(0,0,0,0.75);
-      padding: 25px;
-      border-radius: 15px;
-      width: 320px;
-      text-align: center;
+    .dashboard {
+        width: 420px;
+        padding: 30px;
+        background: rgba(0, 0, 0, 0.75);
+        color: white;
+        border-radius: 18px;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     }
 
-    input, button {
-      width: 90%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    .profile-pic {
+        width: 130px;
+        height: 130px;
+        border-radius: 50%;
+        border: 4px solid #4caf50;
+        object-fit: cover;
+        margin-bottom: 10px;
+    }
+
+    input[type="file"] {
+        margin: 12px 0;
+        color: white;
     }
 
     button {
-      cursor: pointer;
-      background: #4CAF50;
-      color: white;
+        width: 100%;
+        padding: 14px;
+        margin-top: 12px;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
     }
 
-    button.blue { background: #2196F3; }
-    button.red { background: #f44336; }
-    button.gray { background: #777; }
-
-    .hidden { display: none; }
-
-    img {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid #4CAF50;
-      margin-top: 10px;
+    .play-btn {
+        background: #4caf50;
+        color: white;
     }
 
-    p { color: #ccc; margin-top: 12px; }
-  </style>
+    .play-btn:hover {
+        background: #43a047;
+    }
+
+    .logout-btn {
+        background: #ff5722;
+        color: white;
+    }
+
+    .logout-btn:hover {
+        background: #e64a19;
+    }
+
+    .coming-soon {
+        margin-top: 18px;
+        opacity: 0.85;
+        font-style: italic;
+    }
+</style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div class="card" id="loginBox">
-  <h2>🔐 Login</h2>
-  <input id="loginUser" placeholder="Username">
-  <input id="loginPass" type="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-  <p onclick="showSignup()">New user? Sign up</p>
-  <p id="loginMsg"></p>
-</div>
+<div class="dashboard">
+    <h1>Welcome, <span id="username">Player</span> 👋</h1>
 
-<!-- SIGN UP -->
-<div class="card hidden" id="signupBox">
-  <h2>🆕 Sign Up</h2>
-  <input id="signupUser" placeholder="Create username">
-  <input id="signupPass" type="password" placeholder="Create password">
-  <button class="blue" onclick="signup()">Sign Up</button>
-  <p onclick="showLogin()">Already have an account?</p>
-  <p id="signupMsg"></p>
-</div>
+    <img src="" id="profilePic" class="profile-pic" alt="Profile Picture">
 
-<!-- DASHBOARD -->
-<div class="card hidden" id="dashboardBox">
-  <h2 id="dashWelcome"></h2>
+    <input type="file" accept="image/*" onchange="uploadPic(event)">
 
-  <img id="profilePic" src="" alt="Profile Picture">
-  <input type="file" accept="image/*" onchange="uploadPic(event)">
+    <button class="play-btn" onclick="playGame()">▶ Play Guess the Number</button>
 
-  <button onclick="openGame()">▶️ Play Guess the Number</button>
-  <p>✨ More coming soon…</p>
-  <button class="red" onclick="logout()">Logout 🚪</button>
-</div>
+    <div class="coming-soon">✨ More coming soon...</div>
 
-<!-- GAME -->
-<div class="card hidden" id="gameBox">
-  <h2>🎯 Guess the Number</h2>
-  <p>Between 1 and 100</p>
-
-  <input type="number" id="guess" placeholder="Your guess">
-  <button onclick="checkGuess()">Guess</button>
-  <button class="gray" onclick="restartGame()">Restart 🔄</button>
-  <button class="blue" onclick="backToDashboard()">⬅ Back</button>
-
-  <p id="result"></p>
+    <button class="logout-btn" onclick="logout()">Logout 🚪</button>
 </div>
 
 <script>
-  let secretNumber = Math.floor(Math.random() * 100) + 1;
+    // SET USERNAME (change this later from login system)
+    let currentUser = localStorage.getItem("loggedUser") || "Player";
+    document.getElementById("username").innerText = currentUser;
 
-  function signup() {
-    let u = signupUser.value.trim();
-    let p = signupPass.value;
-    if (!u || !p) {
-      signupMsg.innerText = "❗ Fill all fields";
-      return;
+    // LOAD PROFILE PIC
+    let savedPic = localStorage.getItem("profilePic_" + currentUser);
+    if (savedPic) {
+        document.getElementById("profilePic").src = savedPic;
+    } else {
+        document.getElementById("profilePic").src = "https://via.placeholder.com/130";
     }
-    if (localStorage.getItem("user_" + u)) {
-      signupMsg.innerText = "⚠️ Username already used";
-      return;
+
+    function uploadPic(event) {
+        let file = event.target.files[0];
+        let reader = new FileReader();
+
+        reader.onload = function () {
+            document.getElementById("profilePic").src = reader.result;
+            localStorage.setItem("profilePic_" + currentUser, reader.result);
+        };
+        reader.readAsDataURL(file);
     }
-    localStorage.setItem("user_" + u, p);
-    signupMsg.innerText = "✅ Account created! Login now";
-  }
 
-  function login() {
-    let u = loginUser.value;
-    let p = loginPass.value;
-    let saved = localStorage.getItem("user_" + u);
-
-    if (!saved || saved !== p) {
-      loginMsg.innerText = "❌ Wrong username or password";
-      return;
+    function playGame() {
+        alert("Guess the Number game coming next 🎮");
+        // later: window.location.href = "game.html";
     }
-    localStorage.setItem("loggedInUser", u);
-    showDashboard();
-  }
 
-  function showDashboard() {
-    let u = localStorage.getItem("loggedInUser");
-    if (!u) return;
-
-    loginBox.classList.add("hidden");
-    signupBox.classList.add("hidden");
-    dashboardBox.classList.remove("hidden");
-
-    dashWelcome.innerText = "Welcome, " + u + " 👋";
-
-    let pic = localStorage.getItem("pic_" + u);
-    profilePic.src = pic ? pic : "https://via.placeholder.com/100";
-  }
-
-  function uploadPic(event) {
-    let file = event.target.files[0];
-    if (!file) return;
-
-    let reader = new FileReader();
-    reader.onload = function() {
-      let u = localStorage.getItem("loggedInUser");
-      localStorage.setItem("pic_" + u, reader.result);
-      profilePic.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function openGame() {
-    dashboardBox.classList.add("hidden");
-    gameBox.classList.remove("hidden");
-  }
-
-  function backToDashboard() {
-    gameBox.classList.add("hidden");
-    dashboardBox.classList.remove("hidden");
-  }
-
-  function logout() {
-    localStorage.removeItem("loggedInUser");
-    location.reload();
-  }
-
-  function restartGame() {
-    secretNumber = Math.floor(Math.random() * 100) + 1;
-    guess.value = "";
-    result.innerText = "🔄 New number generated!";
-  }
-
-  function checkGuess() {
-    let g = guess.value;
-    if (g < secretNumber) result.innerText = "📉 Too low!";
-    else if (g > secretNumber) result.innerText = "📈 Too high!";
-    else result.innerText = "🎉 You guessed it";
-  }
-
-  showDashboard(); // auto login
+    function logout() {
+        localStorage.removeItem("loggedUser");
+        alert("Logged out!");
+        location.reload();
+    }
 </script>
 
 </body>

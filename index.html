@@ -2,133 +2,124 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard</title>
 
 <style>
-    body {
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: linear-gradient(135deg, #1f4037, #99f2c8);
-        font-family: Arial, sans-serif;
-    }
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
 
-    .dashboard {
-        width: 420px;
-        padding: 30px;
-        background: rgba(0, 0, 0, 0.75);
-        color: white;
-        border-radius: 18px;
-        text-align: center;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    }
+body {
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(135deg, #4e7c6e, #7fbfa3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    h1 {
-        margin-bottom: 20px;
-    }
+/* FULL SCREEN CONTAINER */
+.dashboard {
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    .profile-pic {
-        width: 130px;
-        height: 130px;
-        border-radius: 50%;
-        border: 4px solid #4caf50;
-        object-fit: cover;
-        margin-bottom: 10px;
-    }
+/* MAIN CARD */
+.card {
+  width: 90%;
+  max-width: 500px;
+  padding: 35px;
+  background: rgba(0,0,0,0.75);
+  border-radius: 25px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+}
 
-    input[type="file"] {
-        margin: 12px 0;
-        color: white;
-    }
+/* PROFILE IMAGE */
+.profile-pic {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #7CFF4F;
+  margin-bottom: 10px;
+}
 
-    button {
-        width: 100%;
-        padding: 14px;
-        margin-top: 12px;
-        font-size: 16px;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-    }
+/* BUTTONS */
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+}
 
-    .play-btn {
-        background: #4caf50;
-        color: white;
-    }
+.play-btn {
+  background: #7CFF4F;
+  color: black;
+}
 
-    .play-btn:hover {
-        background: #43a047;
-    }
+.logout-btn {
+  background: #ff6b35;
+  color: white;
+}
 
-    .logout-btn {
-        background: #ff5722;
-        color: white;
-    }
+button:hover {
+  opacity: 0.9;
+}
 
-    .logout-btn:hover {
-        background: #e64a19;
-    }
+input[type="file"] {
+  margin: 10px 0;
+  color: white;
+}
 
-    .coming-soon {
-        margin-top: 18px;
-        opacity: 0.85;
-        font-style: italic;
-    }
+.more {
+  margin-top: 18px;
+  color: #ffd966;
+}
 </style>
 </head>
 
 <body>
 
 <div class="dashboard">
-    <h1>Welcome, <span id="username">Player</span> 👋</h1>
+  <div class="card">
+    <h2>Welcome, Player 👋</h2>
 
-    <img src="" id="profilePic" class="profile-pic" alt="Profile Picture">
+    <img id="preview" class="profile-pic" src="" alt="Profile Picture">
 
-    <input type="file" accept="image/*" onchange="uploadPic(event)">
+    <input type="file" accept="image/*" onchange="loadPic(event)">
 
     <button class="play-btn" onclick="playGame()">▶ Play Guess the Number</button>
 
-    <div class="coming-soon">✨ More coming soon...</div>
+    <div class="more">✨ More coming soon...</div>
 
-    <button class="logout-btn" onclick="logout()">Logout 🚪</button>
+    <button class="logout-btn" onclick="logout()">Logout ⎋</button>
+  </div>
 </div>
 
 <script>
-    // SET USERNAME (change this later from login system)
-    let currentUser = localStorage.getItem("loggedUser") || "Player";
-    document.getElementById("username").innerText = currentUser;
+function loadPic(event) {
+  const img = document.getElementById("preview");
+  img.src = URL.createObjectURL(event.target.files[0]);
+}
 
-    // LOAD PROFILE PIC
-    let savedPic = localStorage.getItem("profilePic_" + currentUser);
-    if (savedPic) {
-        document.getElementById("profilePic").src = savedPic;
-    } else {
-        document.getElementById("profilePic").src = "https://via.placeholder.com/130";
-    }
+function playGame() {
+  alert("Game will start here 🎮");
+}
 
-    function uploadPic(event) {
-        let file = event.target.files[0];
-        let reader = new FileReader();
-
-        reader.onload = function () {
-            document.getElementById("profilePic").src = reader.result;
-            localStorage.setItem("profilePic_" + currentUser, reader.result);
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function playGame() {
-        alert("Guess the Number game coming next 🎮");
-        // later: window.location.href = "game.html";
-    }
-
-    function logout() {
-        localStorage.removeItem("loggedUser");
-        alert("Logged out!");
-        location.reload();
-    }
+function logout() {
+  alert("Logged out!");
+}
 </script>
 
 </body>

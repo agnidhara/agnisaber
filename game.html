@@ -16,150 +16,58 @@ const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Guess the Number</title>
-
-<style>
-body {
-  margin: 0;
-  height: 100vh;
-  background: linear-gradient(135deg, #141E30, #243B55);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: Arial, sans-serif;
-  color: white;
-}
-
-.game-box {
-  background: rgba(0,0,0,0.75);
-  padding: 30px;
-  border-radius: 20px;
-  width: 340px;
-  text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-}
-
-h2 {
-  margin-bottom: 10px;
-}
-
-input {
-  width: 100%;
-  padding: 12px;
-  margin-top: 15px;
-  border-radius: 10px;
-  border: none;
-  font-size: 16px;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 15px;
-  border-radius: 10px;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  background: #9acd32;
-  font-weight: bold;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-#msg {
-  margin-top: 15px;
-  min-height: 24px;
-}
-
-.back {
-  background: #ff7b2c;
-  color: white;
-}
-</style>
-</head>
-
-<body>
-
-<div class="game-box">
-  <h2>🎯 Guess the Number</h2>
-  <p>(Between 1 and 100)</p>
-
-  <input id="g" type="number" placeholder="Enter your guess">
-
-  <button onclick="check()">Guess</button>
-
-  <p id="msg"></p>
-
-  <button class="back" onclick="back()">⬅ Back to Dashboard</button>
-</div>
-
 <script>
-let number = Math.floor(Math.random() * 100) + 1;
-let tries = 0;
+  // User setup
+  const username = localStorage.getItem("username") || prompt("Enter your username:");
+  localStorage.setItem("username", username);
 
-function check() {
-  let guess = Number(document.getElementById("g").value);
-  let msg = document.getElementById("msg");
+  let balance = Number(localStorage.getItem("balance")) || 100;
+  let tries = 0;
+  let number = Math.floor(Math.random() * 100) + 1;
 
-  if (!guess || guess < 1 || guess > 100) {
-    msg.innerText = "Enter a number between 1 and 100!";
-    return;
+  // Update leaderboard
+  async function updateLeaderboard() {
+    try {
+      await db.collection("leaderboard").doc(username).set({
+        username: username,
+        coins: balance
+      });
+    } catch(err) { console.error(err); }
   }
 
-  tries++;
+  async function check() {
+    let guess = Number(document.getElementById("g").value);
+    let msg = document.getElementById("msg");
 
-  if (guess > number) {
-    msg.innerText = "⬆ Too high!";
-  } 
-  else if (guess < number) {
-    msg.innerText = "⬇ Too low!";
-  } 
-  else {
-    let balance = Number(localStorage.getItem("balance")) || 100;
-    let reward = 0;
-
-    if (tries === 1) {
-      reward = 500;
-      msg.innerText = "🏆 PERFECT! 1 try! +500 coins";
-    } 
-    else if (tries <= 3) {
-      reward = 250;
-      msg.innerText = "🥇 Amazing! " + tries + " tries! +250 coins";
-    } 
-    else if (tries <= 5) {
-      reward = 100;
-      msg.innerText = "🥈 Good job! " + tries + " tries! +100 coins";
-    } 
-    else {
-      reward = 50;
-      msg.innerText = "🙂 Correct! " + tries + " tries! +50 coins";
+    if (!guess || guess < 1 || guess > 100) {
+      msg.innerText = "Enter a number between 1 and 100!";
+      return;
     }
 
-    balance += reward;
-    localStorage.setItem("balance", balance);
+    tries++;
 
-    setTimeout(() => {
-      alert(
-        "🎉 You won!\n" +
-        "Tries: " + tries + "\n" +
-        "Coins earned: " + reward + "\n" +
-        "Total balance: " + balance
-      );
-      window.location.href = "dashboard.html";
-    }, 900);
+    if (guess > number) msg.innerText = "⬆ Too high!";
+    else if (guess < number) msg.innerText = "⬇ Too low!";
+    else {
+      let reward = 0;
+      if (tries === 1) reward = 500;
+      else if (tries <=3) reward = 250;
+      else if (tries <=5) reward = 100;
+      else reward = 50;
+
+      balance += reward;
+      localStorage.setItem("balance", balance);
+      await updateLeaderboard();
+
+      msg.innerText = `🏆 You won! ${reward} coins`;
+      setTimeout(() => {
+        alert(`🎉 You won!\nTries: ${tries}\nCoins earned: ${reward}\nTotal balance: ${balance}`);
+        window.location.href = "dashboard.html";
+      }, 800);
+    }
   }
-}
 
-function back() {
-  window.location.href = "dashboard.html";
-}
+  function back() {
+    window.location.href = "dashboard.html";
+  }
 </script>
-
-</body>
-</html>
-

@@ -81,7 +81,7 @@
       <button onclick="goBack()">BACK TO DASHBOARD</button>
     </div>
 
-    <h1>🎯 Guess The Number</h1>
+    <h1>Guess The Number</h1>
     <p>Guess a number between <b>1 and 100</b></p>
 
     <input type="number" id="guessInput" placeholder="Enter number" />
@@ -94,9 +94,9 @@
     <div class="info">Attempts: <span id="tries">0</span></div>
   </div>
 
-  <!-- GAME SCRIPT (VERY IMPORTANT: AT BOTTOM) -->
+  <!-- SCRIPT: ALWAYS AT THE BOTTOM -->
   <script>
-    // 🔥 Firebase Config
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBJCPp0sAkNxgQ0PIXz9gSHIFXKpLmgD9Q",
       authDomain: "agnitech-3eee6.firebaseapp.com",
@@ -109,10 +109,9 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 🔢 Game variables
+    // Game variables
     let secretNumber = Math.floor(Math.random() * 100) + 1;
     let tries = 0;
-
     let username = localStorage.getItem("username") || "Guest";
     let balance = parseInt(localStorage.getItem("balance")) || 100;
 
@@ -123,7 +122,7 @@
       const message = document.getElementById("message");
 
       if (!guess || guess < 1 || guess > 100) {
-        message.innerText = "❌ Enter a number between 1 and 100";
+        message.innerText = "Enter a number between 1 and 100";
         return;
       }
 
@@ -131,14 +130,12 @@
       document.getElementById("tries").innerText = tries;
 
       if (guess < secretNumber) {
-        message.innerText = "⬆️ Too low!";
-      } 
-      else if (guess > secretNumber) {
-        message.innerText = "⬇️ Too high!";
-      } 
-      else {
+        message.innerText = "Too low!";
+      } else if (guess > secretNumber) {
+        message.innerText = "Too high!";
+      } else {
+        // Calculate reward
         let reward = 50;
-
         if (tries === 1) reward = 500;
         else if (tries <= 3) reward = 250;
         else if (tries <= 5) reward = 100;
@@ -147,8 +144,9 @@
         localStorage.setItem("balance", balance);
         document.getElementById("balance").innerText = balance;
 
-        message.innerText = "You won! +"+ reward "coins";
+        message.innerText = "You won! +" + reward + " coins";
 
+        // Save to leaderboard
         saveToLeaderboard();
       }
     }
@@ -177,4 +175,3 @@
 
 </body>
 </html>
-

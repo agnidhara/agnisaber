@@ -1,24 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Guess Game</title>
+  <meta charset="UTF-8">
+  <title>Guess The Number</title>
 
-  <!-- Firebase SDKs -->
+  <!-- 🎨 CSS (SKIN) -->
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      height: 100vh;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .game-box {
+      background: rgba(0, 0, 0, 0.65);
+      padding: 30px;
+      border-radius: 14px;
+      width: 360px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 80%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 22px;
+      border: none;
+      border-radius: 8px;
+      background: #ff9800;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background: #ffc107;
+    }
+
+    #msg {
+      margin-top: 15px;
+      font-weight: bold;
+      min-height: 20px;
+    }
+
+    .balance {
+      margin-top: 15px;
+      font-size: 18px;
+      color: #00e5ff;
+    }
+  </style>
+
+  <!-- 🔥 Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
-  <h2>Guess the Number (1–100)</h2>
+  <!-- 🎮 GAME UI -->
+  <div class="game-box">
+    <h2>🎯 Guess the Number</h2>
 
-  <input id="g" type="number" placeholder="Enter number" />
-  <button onclick="check()">Guess</button>
+    <input id="g" type="number" placeholder="Enter 1 - 100">
+    <br>
 
-  <p id="msg"></p>
-  <p>Balance: <span id="bal">100</span> coins</p>
+    <button onclick="check()">Guess</button>
 
-  <!-- 🔽 ALL JS GOES HERE -->
+    <p id="msg"></p>
+
+    <div class="balance">
+      Balance: <span id="bal">100</span> 🪙
+    </div>
+  </div>
+
+  <!-- 🧠 GAME + FIREBASE LOGIC -->
   <script>
     // 🔹 Firebase config
     const firebaseConfig = {
@@ -33,20 +109,21 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 🔹 User setup
-    const username =
-      localStorage.getItem("username") ||
-      prompt("Enter your username:");
+    // 🔹 User
+    let username = localStorage.getItem("username");
+    if (!username) {
+      username = prompt("Enter your username:");
+      localStorage.setItem("username", username);
+    }
 
-    localStorage.setItem("username", username);
-
+    // 🔹 Game data
     let balance = Number(localStorage.getItem("balance")) || 100;
     let tries = 0;
     let number = Math.floor(Math.random() * 100) + 1;
 
     document.getElementById("bal").innerText = balance;
 
-    // 🔹 Update leaderboard
+    // 🔹 Save to leaderboard
     async function updateLeaderboard() {
       await db.collection("leaderboard").doc(username).set({
         username: username,
@@ -56,25 +133,26 @@
 
     // 🔹 Game logic
     async function check() {
-      let guess = Number(document.getElementById("g").value);
-      let msg = document.getElementById("msg");
+      const guess = Number(document.getElementById("g").value);
+      const msg = document.getElementById("msg");
 
       if (!guess || guess < 1 || guess > 100) {
-        msg.innerText = "Enter a number between 1 and 100!";
+        msg.innerText = "⚠️ Enter a number between 1 and 100!";
         return;
       }
 
       tries++;
 
-      if (guess > number) msg.innerText = "Too high!";
-      else if (guess < number) msg.innerText = "Too low!";
-      else {
-        let reward = 0;
+      if (guess > number) {
+        msg.innerText = "📈 Too high!";
+      } else if (guess < number) {
+        msg.innerText = "📉 Too low!";
+      } else {
+        let reward = 50;
 
         if (tries === 1) reward = 500;
         else if (tries <= 3) reward = 250;
         else if (tries <= 5) reward = 100;
-        else reward = 50;
 
         balance += reward;
         localStorage.setItem("balance", balance);
@@ -82,11 +160,12 @@
 
         await updateLeaderboard();
 
-        msg.innerText = Correct! You earned ${reward} coins 🎉;
+        msg.innerText = 🎉 Correct! You earned ${reward} coins;
 
-        // reset game
+        // Reset game
         tries = 0;
         number = Math.floor(Math.random() * 100) + 1;
+        document.getElementById("g").value = "";
       }
     }
   </script>

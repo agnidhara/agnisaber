@@ -127,6 +127,18 @@ function logout() {
   window.location.href = "index.html";
 }
 </script>
+<!-- Firebase SDKs -->  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>  <script>    const firebaseConfig = {
+apiKey: "AIzaSyBJCPp0sAkNxgQ0PIXz9gSHIFXKpLmgD9Q",
+authDomain: "agnitech-3eee6.firebaseapp.com",
+projectId: "agnitech-3eee6",
+storageBucket: "agnitech-3eee6.appspot.com",
+messagingSenderId: "33138668117",
+appId: "1:33138668117:web:697bcfeb34615b482b5adc"
+};
 
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
 </body>
 </html>
+

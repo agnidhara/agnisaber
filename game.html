@@ -4,63 +4,61 @@
   <meta charset="UTF-8">
   <title>Guess The Number</title>
 
-  <!-- 🎨 CSS -->
+  <!-- CSS -->
   <style>
     body {
       margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: white;
+      background: linear-gradient(135deg, #141e30, #243b55);
       height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      color: white;
     }
 
-    .game-box {
-      background: rgba(0, 0, 0, 0.65);
+    .box {
+      background: rgba(0,0,0,0.75);
       padding: 30px;
-      border-radius: 14px;
-      width: 360px;
+      border-radius: 15px;
+      width: 350px;
       text-align: center;
-      box-shadow: 0 0 30px rgba(0,0,0,0.6);
-    }
-
-    h2 {
-      margin-bottom: 20px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.7);
     }
 
     input {
       width: 80%;
       padding: 10px;
+      font-size: 16px;
       border-radius: 8px;
       border: none;
       outline: none;
-      font-size: 16px;
-      margin-bottom: 12px;
       text-align: center;
+      margin-bottom: 10px;
     }
 
     button {
-      padding: 10px 22px;
+      padding: 10px 20px;
       border: none;
       border-radius: 8px;
       background: #ff9800;
-      color: black;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
+      margin: 5px;
     }
 
     button:hover {
       background: #ffc107;
     }
 
+    .blue {
+      background: #00e5ff;
+    }
+
     #msg {
       margin-top: 15px;
+      min-height: 22px;
       font-weight: bold;
-      min-height: 20px;
     }
 
     .balance {
@@ -68,27 +66,24 @@
       font-size: 18px;
       color: #00e5ff;
     }
-
-    .back-btn {
-      background: #00e5ff;
-      margin-top: 15px;
-    }
   </style>
 
-  <!-- 🔥 Firebase SDKs -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
-  <div class="game-box">
+  <div class="box">
     <h2>🎯 Guess the Number</h2>
+    <p>(Between 1 and 100)</p>
 
-    <input id="g" type="number" placeholder="Enter 1 - 100">
+    <input id="guessInput" type="number" placeholder="Enter number">
+
     <br>
-
-    <button onclick="check()">Guess</button>
+    <button onclick="checkGuess()">Guess</button>
+    <button onclick="restartGame()">Restart</button>
 
     <p id="msg"></p>
 
@@ -96,13 +91,12 @@
       Balance: <span id="bal">100</span> 🪙
     </div>
 
-    <!-- ⬅ BACK BUTTON -->
-    <button class="back-btn" onclick="goBack()">⬅ Back to Dashboard</button>
+    <br>
+    <button class="blue" onclick="goBack()">⬅ Back</button>
   </div>
 
-  <!-- 🧠 GAME + FIREBASE LOGIC -->
   <script>
-    // 🔹 Firebase config
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBJCPp0sAkNxgQ0PIXz9gSHIFXKpLmgD9Q",
       authDomain: "agnitech-3eee6.firebaseapp.com",
@@ -115,21 +109,20 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 🔹 Username
+    // User
     let username = localStorage.getItem("username");
     if (!username) {
-      username = prompt("Enter your username:");
+      username = prompt("Enter username:");
       localStorage.setItem("username", username);
     }
 
-    // 🔹 Game data
-    let balance = Number(localStorage.getItem("balance")) || 100;
-    let tries = 0;
+    // Game variables
     let number = Math.floor(Math.random() * 100) + 1;
+    let tries = 0;
+    let balance = Number(localStorage.getItem("balance")) || 100;
 
     document.getElementById("bal").innerText = balance;
 
-    // 🔹 Update leaderboard
     async function updateLeaderboard() {
       await db.collection("leaderboard").doc(username).set({
         username: username,
@@ -137,43 +130,55 @@
       });
     }
 
-    // 🔹 Game logic
-    async function check() {
-      const guess = Number(document.getElementById("g").value);
+    function checkGuess() {
+      const input = document.getElementById("guessInput");
       const msg = document.getElementById("msg");
+      const guess = Number(input.value);
 
-      if (!guess || guess < 1 || guess > 100) {
-        msg.innerText = "⚠️ Enter a number between 1 and 100!";
+      if (input.value === "") {
+        msg.innerText = "❌ Enter a number first!";
+        return;
+      }
+
+      if (guess < 1 || guess > 100) {
+        msg.innerText = "⚠️ Only 1–100 allowed!";
         return;
       }
 
       tries++;
 
       if (guess > number) {
-        msg.innerText = "📈 Too high!";
-      } else if (guess < number) {
-        msg.innerText = "📉 Too low!";
-      } else {
-        let reward = 50;
+        msg.innerText = "📈 Too HIGH!";
+      } 
+      else if (guess < number) {
+        msg.innerText = "📉 Too LOW!";
+      } 
+      else {
+        let reward = 100;
         if (tries === 1) reward = 500;
         else if (tries <= 3) reward = 250;
-        else if (tries <= 5) reward = 100;
 
         balance += reward;
         localStorage.setItem("balance", balance);
         document.getElementById("bal").innerText = balance;
 
-        await updateLeaderboard();
+        updateLeaderboard();
 
-        msg.innerText = 🎉 Correct! You earned ${reward} coins;
-
-        tries = 0;
-        number = Math.floor(Math.random() * 100) + 1;
-        document.getElementById("g").value = "";
+        msg.innerText = 🎉 CORRECT! +${reward} coins;
+        input.disabled = true;
       }
+
+      input.value = "";
     }
 
-    // 🔹 Back to dashboard
+    function restartGame() {
+      number = Math.floor(Math.random() * 100) + 1;
+      tries = 0;
+      document.getElementById("msg").innerText = "🔄 Game restarted!";
+      document.getElementById("guessInput").disabled = false;
+      document.getElementById("guessInput").value = "";
+    }
+
     function goBack() {
       window.location.href = "dashboard.html";
     }

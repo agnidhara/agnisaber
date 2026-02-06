@@ -1,74 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Login</title>
-<style>
-body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#1f4037;
-  font-family:Arial;
-}
-.box{
-  background:#000c;
-  padding:30px;
-  border-radius:20px;
-  color:white;
-  width:320px;
-  text-align:center;
-}
-input,button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border:none;
-  border-radius:10px;
-}
-button{
-  background:#9acd32;
-  font-weight:bold;
-}
-</style>
+  <meta charset="UTF-8">
+  <title>Login / Signup</title>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+    }
+    .box {
+      background: rgba(0,0,0,0.4);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+    }
+    input {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 80%;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #00c6ff;
+      color: black;
+    }
+    button:hover { background: #00a2d4; }
+  </style>
 </head>
-
 <body>
+
 <div class="box">
   <h2>Login / Signup</h2>
-
-  <input id="user" placeholder="Username">
-  <input id="pass" type="password" placeholder="Password">
-
-  <button onclick="login()">Login</button>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
   <button onclick="signup()">Sign Up</button>
-
-  <p id="msg"></p>
+  <button onclick="login()">Log In</button>
+  <div id="message"></div>
 </div>
 
 <script>
-function signup(){
-  let u=user.value;
-  let p=pass.value;
-  if(localStorage[u]){
-    msg.innerText="Username already exists!";
-  } else {
-    localStorage[u]=p;
-    msg.innerText="Signup successful!";
-  }
-}
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJCPp0sAkNxgQ0PIXz9gSHIFXKpLmgD9Q",
+    authDomain: "agnitech-3eee6.firebaseapp.com",
+    projectId: "agnitech-3eee6",
+    storageBucket: "agnitech-3eee6.appspot.com",
+    messagingSenderId: "33138668117",
+    appId: "1:33138668117:web:697bcfeb34615b482b5adc"
+  };
 
-function login(){
-  let u=user.value;
-  let p=pass.value;
-  if(localStorage[u]===p){
-    localStorage.currentUser=u;
-    location.href="dashboard.html";
-  } else {
-    msg.innerText="Wrong username or password";
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  const messageDiv = document.getElementById("message");
+
+  function signup() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        // Save UID to localStorage
+        localStorage.setItem("uid", userCredential.user.uid);
+        messageDiv.innerText = "Signup successful!";
+        window.location.href = "dashboard.html";
+      })
+      .catch((error) => {
+        messageDiv.innerText = "Error: " + error.message;
+      });
   }
-}
+
+  function login() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    auth.signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        localStorage.setItem("uid", userCredential.user.uid);
+        messageDiv.innerText = "Login successful!";
+        window.location.href = "dashboard.html";
+      })
+      .catch((error) => {
+        messageDiv.innerText = "Error: " + error.message;
+      });
+  }
 </script>
+
 </body>
 </html>
